@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ethereum DApp - Store Money</title>
+    <title>Ethereum DApp 5</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f0f0f0;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -23,12 +23,12 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             max-width: 400px;
             width: 100%;
+            text-align: center;
         }
 
-        h1 {
+        h2 {
             font-size: 24px;
             margin-bottom: 20px;
-            text-align: center;
             color: #333;
         }
 
@@ -52,10 +52,9 @@
             background-color: #0056b3;
         }
 
-        #output {
+        p {
             margin-top: 20px;
             font-size: 18px;
-            text-align: center;
             color: #007bff;
         }
 
@@ -64,7 +63,7 @@
                 padding: 20px;
             }
 
-            h1 {
+            h2 {
                 font-size: 20px;
             }
 
@@ -72,7 +71,7 @@
                 font-size: 14px;
             }
 
-            #output {
+            p {
                 font-size: 16px;
             }
         }
@@ -80,23 +79,26 @@
 </head>
 <body>
     <div class="container">
-        <h1>Ethereum DApp - Store Money</h1>
-        <input type="number" id="inputValue" placeholder="Enter amount" />
-        <button id="storeValueButton">Store Value</button>
-        <button id="retrieveValueButton">Get Stored Value</button>
-        <div id="output"></div>
+        <h2>Ethereum DApp 5</h2>
+        <input type="number" id="moneyInput" placeholder="Enter amount to store">
+        <button class="btn" onclick="storeValue()">Store Value</button>
+        <button class="btn" onclick="getValue()">Get Stored Value</button>
+        <p id="storedValue"></p>
+        <p id="status"></p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
     <script>
-        let web3;
-        let accounts;
-        let contract;
-
         const contractAddress = '0x9d63fd56fab58f414fd3a4b27ae0e099091ba89d'; // Replace with your contract address
         const contractABI = [
             {
-                "inputs": [{"internalType": "uint256", "name": "num", "type": "uint256"}],
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "num",
+                        "type": "uint256"
+                    }
+                ],
                 "name": "store_m",
                 "outputs": [],
                 "stateMutability": "nonpayable",
@@ -105,41 +107,34 @@
             {
                 "inputs": [],
                 "name": "view_m",
-                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
                 "stateMutability": "view",
                 "type": "function"
             }
         ];
 
-        document.getElementById('storeValueButton').addEventListener('click', async () => {
-            if (window.ethereum) {
-                web3 = new Web3(window.ethereum);
-                try {
-                    accounts = await web3.eth.requestAccounts();
-                    const value = document.getElementById('inputValue').value;
-                    await contract.methods.store_m(value).send({ from: accounts[0] });
-                    alert('Value stored successfully!');
-                } catch (error) {
-                    console.error("Error storing value:", error);
-                }
-            } else {
-                alert('Please install MetaMask!');
-            }
-        });
+        const web3 = new Web3(Web3.givenProvider);
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
 
-        document.getElementById('retrieveValueButton').addEventListener('click', async () => {
-            if (window.ethereum) {
-                web3 = new Web3(window.ethereum);
-                try {
-                    const storedValue = await contract.methods.view_m().call();
-                    document.getElementById('output').innerText = `Stored Value: ${storedValue}`;
-                } catch (error) {
-                    console.error("Error retrieving value:", error);
-                }
-            } else {
-                alert('Please install MetaMask!');
-            }
-        });
+        async function storeValue() {
+            const accounts = await web3.eth.requestAccounts();
+            const value = document.getElementById('moneyInput').value;
+            console.log("value: " + value);
+            console.log("accounts[0] " + accounts[0]);
+            await contract.methods.store_m(value).send({from: accounts[0]});
+        }
+
+        async function getValue() {
+            const storedValue = await contract.methods.view_m().call();
+            console.log("stored value " + storedValue);
+            document.getElementById('storedValue').innerText = "Stored Value: " + storedValue;
+        }
     </script>
 </body>
 </html>
